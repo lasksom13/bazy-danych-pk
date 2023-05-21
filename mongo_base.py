@@ -13,7 +13,7 @@ def start_container(image, container_name, port):
 # Function to insert data into MongoDB
 def import_to_mongodb(file_path):
     start_time = time.time()
-    client = MongoClient('mongodb://localhost:9006/')
+    client = MongoClient('mongodb://:9006/')
     db = client['imdb']
     collection = db['imdbdata']
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -38,7 +38,7 @@ def import_to_mongodb(file_path):
 
 
 def print_first_50_entries():
-    client = MongoClient('mongodb://localhost:9006/')
+    client = MongoClient('mongodb://127.0.0.1:9006/')
     db = client['imdb']
     collection = db['imdbdata']
     cursor = collection.find().limit(50)
