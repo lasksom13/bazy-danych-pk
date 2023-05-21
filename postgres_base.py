@@ -4,7 +4,7 @@ import time
 import psycopg2
 from pymongo import MongoClient
 from psycopg2.extras import execute_values
-from influxdb import InfluxDBClient
+from influxdb_base import InfluxDBClient
 from time import sleep
 
 
@@ -87,13 +87,13 @@ def print_first_50_entries():
 
 
 def main():
-    # start_container('postgres:latest', 'postgres_db', 9005)
-    #sleep(5)
-    # create_table()
-    #time = import_to_postgres("title.basics.tsv/data_short.tsv")
-    #print(time)
+    start_container('postgres:latest', 'postgres_db', 9005)
+    sleep(5)
+    create_table()
+    time = import_to_postgres("title.basics.tsv/data_short.tsv")
+    print(time)
     print_first_50_entries()
 
 
 if __name__ == "__main__":
-   main()
+    main()
