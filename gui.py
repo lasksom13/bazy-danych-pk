@@ -17,7 +17,7 @@ class DatabaseApp(QDialog):
     def __init__(self, parent=None):
         super(DatabaseApp, self).__init__(parent)
 
-        self.setWindowTitle("Databese Performance")
+        self.setWindowTitle("Database Performance")
         self.resize(800, 400)
         
 
@@ -29,10 +29,10 @@ class DatabaseApp(QDialog):
         # styleLabel = QLabel("&Style:")
         # styleLabel.setBuddy(styleComboBox)
 
-        # self.useStylePaletteCheckBox = QCheckBox("&Use style's standard palette")
-        # self.useStylePaletteCheckBox.setChecked(True)
+        # self.useStylePaletteradioButton = QradioButton("&Use style's standard palette")
+        # self.useStylePaletteradioButton.setChecked(True)
 
-        # disableWidgetsCheckBox = QCheckBox("&Disable widgets")
+        # disableWidgetsradioButton = QradioButton("&Disable widgets")
 
         # self.createTopLeftGroupBox()
         # self.createTopRightGroupBox()
@@ -42,19 +42,19 @@ class DatabaseApp(QDialog):
         self.createMainTabWidget()
 
         # styleComboBox.textActivated.connect(self.changeStyle)
-        # self.useStylePaletteCheckBox.toggled.connect(self.changePalette)
-        # disableWidgetsCheckBox.toggled.connect(self.topLeftGroupBox.setDisabled)
-        # disableWidgetsCheckBox.toggled.connect(self.topRightGroupBox.setDisabled)
-        # disableWidgetsCheckBox.toggled.connect(self.bottomLeftTabWidget.setDisabled)
-        # disableWidgetsCheckBox.toggled.connect(self.bottomRightGroupBox.setDisabled)
+        # self.useStylePaletteradioButton.toggled.connect(self.changePalette)
+        # disableWidgetsradioButton.toggled.connect(self.topLeftGroupBox.setDisabled)
+        # disableWidgetsradioButton.toggled.connect(self.topRightGroupBox.setDisabled)
+        # disableWidgetsradioButton.toggled.connect(self.bottomLeftTabWidget.setDisabled)
+        # disableWidgetsradioButton.toggled.connect(self.bottomRightGroupBox.setDisabled)
         self.label_numberOfRecords = QLabel()
         self.updateNumberOfRecords()
         # topLayout = QHBoxLayout()
         # topLayout.addWidget(label)
         # topLayout.addWidget(styleComboBox)
         # topLayout.addStretch(1)
-        # topLayout.addWidget(self.useStylePaletteCheckBox)
-        # topLayout.addWidget(disableWidgetsCheckBox)
+        # topLayout.addWidget(self.useStylePaletteradioButton)
+        # topLayout.addWidget(disableWidgetsradioButton)
 
         mainLayout = QGridLayout()
         mainLayout.addWidget(self.mainTabWidget)
@@ -91,15 +91,18 @@ class DatabaseApp(QDialog):
         # update number of records
         self.updateNumberOfRecords()
 
-    def simpleTest(self, _numberOfRecords):
+    def simpleTest(self):
         if self.tab2radioButton_Insert.isChecked():
-            self.tab2Label_TestOutput.setText(f"It took {randomNumber()} seconds to insert {_numberOfRecords} records.")
+            self.tab2Label_TestOutput.setText(f"It took {randomNumber()} seconds to insert {self.tab1LineEdit_NumberOfRecordsToAdd.text()} records.")
         elif self.tab2radioButton_Modify.isChecked():
-            self.tab2Label_TestOutput.setText(f"It took {randomNumber()} seconds to modify {_numberOfRecords} records.")
+            self.tab2Label_TestOutput.setText(f"It took {randomNumber()} seconds to modify {self.tab1LineEdit_NumberOfRecordsToAdd.text()} records.")
         elif self.tab2radioButton_Delete.isChecked():
-            self.tab2Label_TestOutput.setText(f"It took {randomNumber()} seconds to insert {_numberOfRecords} records.")
+            self.tab2Label_TestOutput.setText(f"It took {randomNumber()} seconds to insert {self.tab1LineEdit_NumberOfRecordsToAdd.text()} records.")
         
         self.updateNumberOfRecords()
+
+    def statisticsTest(self):
+        self.tab3Label_TestOutput.setText(f"It took {randomNumber()} seconds to perform {self.tab3buttonGroup_testTypes.checkedButton().text()} on {self.tab3buttonGroup_columnNames.checkedButton().text()} column.")
 
 
 
@@ -129,7 +132,7 @@ class DatabaseApp(QDialog):
 
         self.mainTabWidget.addTab(self.tab1, "DB Creation")
         self.mainTabWidget.addTab(self.tab2, "Basic Tests")
-        self.mainTabWidget.addTab(self.tab3, "Tab3")
+        self.mainTabWidget.addTab(self.tab3, "Statistics")
 
 
     def createTab1(self):
@@ -140,10 +143,10 @@ class DatabaseApp(QDialog):
         self.tab1LineEdit_NumberOfRecordsToAdd.setPlaceholderText("Number of records to add")
 
         self.tab1Button_IniciateDb = QPushButton("Create Databases")
-        self.tab1Button_IniciateDb.clicked.connect(lambda: self.createDatabase(self.tab1LineEdit_NumberOfRecordsToAdd.text()))
+        self.tab1Button_IniciateDb.clicked.connect(self.createDatabase)
 
         self.tab1Button_DeleteDb = QPushButton("Delete Databases")
-        self.tab1Button_DeleteDb.clicked.connect(lambda: self.deleteDatabase()) # delete db
+        self.tab1Button_DeleteDb.clicked.connect(self.deleteDatabase) # delete db
 
         self.tab1Layout.addWidget(self.tab1LineEdit_NumberOfRecordsToAdd)
         self.tab1Layout.addWidget(self.tab1Button_IniciateDb)
@@ -167,7 +170,7 @@ class DatabaseApp(QDialog):
         self.tab2LineEdit_NumberOfRecordsToTest.setPlaceholderText("Number of records to perform action on")
 
         self.tab2Button_RunTest = QPushButton("Start Test")
-        self.tab2Button_RunTest.clicked.connect(lambda: self.simpleTest(self.tab2LineEdit_NumberOfRecordsToTest.text()))
+        self.tab2Button_RunTest.clicked.connect(self.simpleTest)
 
         self.tab2Label_TestOutput = QLabel()
         
@@ -186,7 +189,59 @@ class DatabaseApp(QDialog):
     
     def createTab3(self):
         self.tab3 = QWidget()
-        self.tab3Layout = QVBoxLayout()
+        self.tab3Layout = QGridLayout()
+
+        self.tab3Layout_columnNames = QVBoxLayout()
+        self.tab3Label_columnToTest = QLabel("What column would you like to test?")
+        self.tab3radioButton_tconst = QRadioButton("tconst [String]")
+        self.tab3radioButton_titleType = QRadioButton("titleType [String]")
+        self.tab3radioButton_primaryTitle = QRadioButton("primaryTitle [String]")
+        self.tab3radioButton_originalTitle = QRadioButton("originalTitle [String]")
+        self.tab3radioButton_isAdult = QRadioButton("isAdult [Boolean]")
+        self.tab3radioButton_startYear = QRadioButton("startYear [Datetime]")
+        self.tab3radioButton_endYear = QRadioButton("endYear [Datetime]")
+        self.tab3radioButton_runtimeMinutes = QRadioButton("runtimeMinutes [Integer]")
+        self.tab3radioButton_genres = QRadioButton("genres [String Array]")
+        self.tab3radioButton_tconst.setChecked(True)
+
+        self.tab3buttonGroup_columnNames = QButtonGroup()
+        self.tab3buttonGroup_columnNames.addButton(self.tab3radioButton_tconst)
+        self.tab3buttonGroup_columnNames.addButton(self.tab3radioButton_titleType)
+        self.tab3buttonGroup_columnNames.addButton(self.tab3radioButton_primaryTitle)
+        self.tab3buttonGroup_columnNames.addButton(self.tab3radioButton_originalTitle)
+        self.tab3buttonGroup_columnNames.addButton(self.tab3radioButton_isAdult)
+        self.tab3buttonGroup_columnNames.addButton(self.tab3radioButton_startYear)
+        self.tab3buttonGroup_columnNames.addButton(self.tab3radioButton_endYear)
+        self.tab3buttonGroup_columnNames.addButton(self.tab3radioButton_runtimeMinutes)
+        self.tab3buttonGroup_columnNames.addButton(self.tab3radioButton_genres)
+        
+    
+
+        self.tab3Layout_testTypes = QVBoxLayout()
+        self.tab3Label_testTypes = QLabel("What test would you like to perform?")
+        self.tab3radioButton_max = QRadioButton("MAXIMUM VALUE")
+        self.tab3radioButton_min = QRadioButton("MINIMUM VALUE")
+        self.tab3radioButton_median = QRadioButton("MEDIAN")
+        self.tab3radioButton_countRows = QRadioButton("COUNT ROWS")
+        self.tab3radioButton_countWords = QRadioButton("COUNT WORDS")
+        self.tab3LineEdit_wordToCount = QLineEdit()
+        self.tab3LineEdit_wordToCount.setPlaceholderText("Word to count")
+        self.tab3LineEdit_wordToCount.setFixedWidth(200)
+        self.tab3radioButton_dataDistribution = QRadioButton("DATA DISTRIBUTION")
+        self.tab3radioButton_max.setChecked(True)
+
+        self.tab3buttonGroup_testTypes = QButtonGroup()
+        self.tab3buttonGroup_testTypes.addButton(self.tab3radioButton_max)
+        self.tab3buttonGroup_testTypes.addButton(self.tab3radioButton_min)
+        self.tab3buttonGroup_testTypes.addButton(self.tab3radioButton_median)
+        self.tab3buttonGroup_testTypes.addButton(self.tab3radioButton_countRows)
+        self.tab3buttonGroup_testTypes.addButton(self.tab3radioButton_countWords)
+        self.tab3buttonGroup_testTypes.addButton(self.tab3radioButton_dataDistribution)
+
+        self.tab3Button_RunTest = QPushButton("Start Test")
+        self.tab3Button_RunTest.clicked.connect(self.statisticsTest)
+
+        self.tab3Label_TestOutput = QLabel()
 
         # self.tab2Label_TypeOfOperation = QLabel("What operation would you like to test?")
         # self.tab2radioButton_Insert = QRadioButton("INSERT")
@@ -199,15 +254,37 @@ class DatabaseApp(QDialog):
 
         # self.tab2Button_RunTest = QPushButton("Start Test")
         # self.tab2Button_RunTest.clicked.connect(lambda: self.simpleTest(self.tab2LineEdit_NumberOfRecordsToTest.text()))
+
+
+
+              
+        self.tab3Layout_columnNames.addWidget(self.tab3Label_columnToTest)
+        self.tab3Layout_columnNames.addWidget(self.tab3radioButton_tconst)
+        self.tab3Layout_columnNames.addWidget(self.tab3radioButton_titleType)
+        self.tab3Layout_columnNames.addWidget(self.tab3radioButton_primaryTitle)
+        self.tab3Layout_columnNames.addWidget(self.tab3radioButton_originalTitle)
+        self.tab3Layout_columnNames.addWidget(self.tab3radioButton_startYear)
+        self.tab3Layout_columnNames.addWidget(self.tab3radioButton_endYear)
+        self.tab3Layout_columnNames.addWidget(self.tab3radioButton_runtimeMinutes)
+        self.tab3Layout_columnNames.addWidget(self.tab3radioButton_genres)
+        self.tab3Layout_columnNames.addStretch(1)
+
+        self.tab3Layout_testTypes.addWidget(self.tab3Label_testTypes)
+        self.tab3Layout_testTypes.addWidget(self.tab3radioButton_max)
+        self.tab3Layout_testTypes.addWidget(self.tab3radioButton_min)
+        self.tab3Layout_testTypes.addWidget(self.tab3radioButton_median)
+        self.tab3Layout_testTypes.addWidget(self.tab3radioButton_countRows)
+        self.tab3Layout_testTypes.addWidget(self.tab3radioButton_countWords)
+        self.tab3Layout_testTypes.addWidget(self.tab3LineEdit_wordToCount)
+        self.tab3Layout_testTypes.addWidget(self.tab3radioButton_dataDistribution)
+        self.tab3Layout_testTypes.addStretch(1)
+
         
 
-        # self.tab3Layout.addWidget(self.tab2Label_TypeOfOperation)
-        # self.tab3Layout.addWidget(self.tab2radioButton_Insert)
-        # self.tab3Layout.addWidget(self.tab2radioButton_Modify)
-        # self.tab3Layout.addWidget(self.tab2radioButton_Delete)
-        # self.tab3Layout.addWidget(self.tab2LineEdit_NumberOfRecordsToTest)
-        # self.tab3Layout.addWidget(self.tab2Button_RunTest)
-        # self.tab3Layout.addStretch(1)
+        self.tab3Layout.addLayout(self.tab3Layout_columnNames, 1, 1)
+        self.tab3Layout.addLayout(self.tab3Layout_testTypes, 1, 2, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.tab3Layout.addWidget(self.tab3Button_RunTest, 2, 1, 1, 2)
+        self.tab3Layout.addWidget(self.tab3Label_TestOutput, 3, 1, 1, 2)
 
         self.tab3.setLayout(self.tab3Layout)
 
@@ -217,7 +294,7 @@ class DatabaseApp(QDialog):
         self.changePalette()
 
     def changePalette(self):
-        # if (self.useStylePaletteCheckBox.isChecked()):
+        # if (self.useStylePaletteradioButton.isChecked()):
         #     QApplication.setPalette(QApplication.style().standardPalette())
         # else:
         QApplication.setPalette(self.originalPalette)
@@ -233,15 +310,15 @@ class DatabaseApp(QDialog):
     #     radioButton3 = QRadioButton("Radio button 3")
     #     radioButton1.setChecked(True)
 
-    #     checkBox = QCheckBox("Tri-state check box")
-    #     checkBox.setTristate(True)
-    #     checkBox.setCheckState(Qt.CheckState.PartiallyChecked)
+    #     radioButton = QradioButton("Tri-state check box")
+    #     radioButton.setTristate(True)
+    #     radioButton.setCheckState(Qt.CheckState.PartiallyChecked)
 
     #     layout = QVBoxLayout()
     #     layout.addWidget(radioButton1)
     #     layout.addWidget(radioButton2)
     #     layout.addWidget(radioButton3)
-    #     layout.addWidget(checkBox)
+    #     layout.addWidget(radioButton)
     #     layout.addStretch(1)
     #     self.topLeftGroupBox.setLayout(layout)
 
