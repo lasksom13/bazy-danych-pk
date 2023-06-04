@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import typing as tp
 
+
 class BaseCommands(ABC):
     @abstractmethod
     def start_database(
@@ -62,6 +63,48 @@ class BaseCommands(ABC):
             table_name: str = "imdbdata"
     ) -> float:
         pass
+
+    @abstractmethod
+    def test_time_for_max(
+            self,
+            column_name: str,
+            table_name: str = "imdbdata"
+    ) -> tuple:
+        pass
+
+    @abstractmethod
+    def test_time_for_min(
+            self,
+            column_name: str,
+            table_name: str = "imdbdata"
+    ) -> tuple:
+        pass
+
+    @abstractmethod
+    def test_time_for_sorting(
+            self,
+            column_name: str,
+            table_name: str = "imdbdata"
+    ) -> tuple:
+        pass
+
+    @abstractmethod
+    def test_time_for_median(
+            self,
+            column_name: str,
+            table_name: str = "imdbdata"
+    ) -> tuple:
+        pass
+
+    @abstractmethod
+    def test_time_for_data_distribution(
+            self,
+            column_name: str,
+            table_name: str = "imdbdata"
+    ) -> tuple:
+        pass
+
+
 
 
 

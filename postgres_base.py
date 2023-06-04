@@ -299,6 +299,101 @@ class Postgres(BaseCommands):
             print(row)
         return end_time - start_time, rows
 
+    def test_time_for_max(
+            self,
+            column_name: str = "runtimeMinutes",
+            table_name: str = "imdbdata"
+    ) -> tuple:
+        start_time = time.time()
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT MAX({column_name}) FROM {table_name} "
+                       f"WHERE {column_name} IS NOT NULL "
+                       fr"AND {column_name} != E'\\N'")
+        max_value = cursor.fetchone()[0]
+        print(max_value)
+        cursor.close()
+        conn.close()
+        end_time = time.time()
+        return end_time-start_time, max_value
+
+    def test_time_for_min(
+            self,
+            column_name: str = "runtimeMinutes",
+            table_name: str = "imdbdata"
+    ) -> tuple:
+        start_time = time.time()
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT MIN({column_name}) FROM {table_name} "
+                       f"WHERE {column_name} IS NOT NULL "
+                       fr"AND {column_name} != E'\\N'")
+        min_value = cursor.fetchone()[0]
+        print(min_value)
+        cursor.close()
+        conn.close()
+        end_time = time.time()
+        return end_time-start_time, min_value
+
+    def test_time_for_sorting(
+            self,
+            column_name: str = "runtimeMinutes",
+            table_name: str = "imdbdata"
+    ) -> tuple:
+        start_time = time.time()
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM {table_name} ORDER BY {column_name}")
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        end_time = time.time()
+        for row in rows:
+            print(row)
+        return end_time - start_time, rows
+
+    def test_time_for_median(
+            self,
+            column_name: str = "runtimeMinutes",
+            table_name: str = "imdbdata"
+    ) -> tuple:
+        """
+        value in the middle of sorted records based on column_name (use with "runtimeMinutes")
+        :return:
+        """
+        start_time = time.time()
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY {column_name}::numeric) FROM {table_name} "
+                       f"WHERE {column_name} IS NOT NULL "
+                       fr"AND {column_name} != E'\\N'")
+        median = cursor.fetchone()[0]
+        cursor.close()
+        conn.close()
+        end_time = time.time()
+        return end_time - start_time, median
+
+    def test_time_for_data_distribution(
+            self,
+            column_name: str = "runtimeMinutes",
+            table_name: str = "imdbdata"
+    ) -> tuple:
+        """
+        group_by + count (use with "runtimeMinutes")
+        :return:
+        """
+        start_time = time.time()
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT {column_name}, COUNT(*) FROM {table_name} GROUP BY {column_name} "
+                       f"HAVING {column_name} IS NOT NULL "
+                       fr"AND {column_name} != E'\\N'")
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        end_time = time.time()
+        return end_time - start_time, rows
+
 
 if __name__ == "__main__":
     # main()
