@@ -10,6 +10,8 @@ import time
 from web_scrapping import WebScrapper
 from mongodb_base import MongoDB
 from postgres_base import Postgres
+from cassandra_base import CassandraDB
+from chart import generate_chart
 
 
 
@@ -24,11 +26,10 @@ class DatabaseApp(QDialog):
     def __init__(self, parent=None):
         super(DatabaseApp, self).__init__(parent)
 
-        self.numberOfRecords = 0
+        self.numberOfRecords = 1000000
         self.postgres = Postgres()
         self.mongodb = MongoDB()
-        ### CASSANDRA_TODO ###
-        self.cassandra = "123"
+        self.cassandra = CassandraDB()
 
         self.setWindowTitle("Database Performance")
         self.resize(800, 400)
@@ -58,14 +59,13 @@ class DatabaseApp(QDialog):
         # create db function
         # self.postgres.start_database()
         # self.mongodb.start_database()
-        ### CASSANDRA_TODO ###
-
-        time.sleep(5)
+        # self.cassandra.start_database()
+        # time.sleep(5)
 
         # create table
         self.postgres.create_table()
         self.mongodb.create_table()
-        ### CASSANDRA_TODO ###
+        self.cassandra.create_table()
 
         
         print(self.postgres.list_tables())
@@ -84,6 +84,7 @@ class DatabaseApp(QDialog):
         # delete db function
         self.postgres.drop_table()
         self.mongodb.drop_table()
+        self.cassandra.drop_table()
 
         # update number of records
         self.updateNumberOfRecords(-self.numberOfRecords)
@@ -97,29 +98,53 @@ class DatabaseApp(QDialog):
         if self.tab2radioButton_Insert.isChecked():
             postgres_output = self.postgres.test_time_for_insert(int(self.tab2LineEdit_NumberOfRecordsToTest.text()))
             mongodb_output = self.mongodb.test_time_for_insert(int(self.tab2LineEdit_NumberOfRecordsToTest.text()))
-            cassandra_output = "TODO"
+            cassandra_output = self.cassandra.test_time_for_insert(int(self.tab2LineEdit_NumberOfRecordsToTest.text()))
             self.tab2Label_TestOutput.setText(f"[PostgreSQL] It took {postgres_output} seconds to insert {self.tab2LineEdit_NumberOfRecordsToTest.text()} records.\n" +
             f"[MongoDB] It took {mongodb_output} seconds to insert {self.tab2LineEdit_NumberOfRecordsToTest.text()} records.\n"
-            f"[MongoDB] It took {cassandra_output} seconds to insert {self.tab2LineEdit_NumberOfRecordsToTest.text()} records.\n")
+            f"[Cassandra] It took {cassandra_output} seconds to insert {self.tab2LineEdit_NumberOfRecordsToTest.text()} records.\n")
             self.updateNumberOfRecords(int(self.tab2LineEdit_NumberOfRecordsToTest.text()))
+
+            title = f"Inserting {self.tab2LineEdit_NumberOfRecordsToTest.text()} records"
+            chart_data = {
+                "PostgreSQL": postgres_output,
+                "MongoDB": mongodb_output,
+                "Cassandra": cassandra_output
+            }
+            generate_chart(chart_data, "insert", title)
+
 
         elif self.tab2radioButton_Modify.isChecked():
             postgres_output = self.postgres.test_time_for_modify(int(self.tab2LineEdit_NumberOfRecordsToTest.text()))
             mongodb_output = self.mongodb.test_time_for_modify(int(self.tab2LineEdit_NumberOfRecordsToTest.text()))
-            cassandra_output = "TODO"
+            cassandra_output = self.cassandra.test_time_for_modify(int(self.tab2LineEdit_NumberOfRecordsToTest.text()))
             self.tab2Label_TestOutput.setText(f"[PostgreSQL] It took {postgres_output} seconds to modify {self.tab2LineEdit_NumberOfRecordsToTest.text()} records.\n" +
             f"[MongoDB] It took {mongodb_output} seconds to modify {self.tab2LineEdit_NumberOfRecordsToTest.text()} records.\n" +
-            f"[MongoDB] It took {cassandra_output} seconds to modify {self.tab2LineEdit_NumberOfRecordsToTest.text()} records.\n")
+            f"[Cassandra] It took {cassandra_output} seconds to modify {self.tab2LineEdit_NumberOfRecordsToTest.text()} records.\n")
+
+            title = f"Modifying {self.tab2LineEdit_NumberOfRecordsToTest.text()} records"
+            chart_data = {
+                "PostgreSQL": postgres_output,
+                "MongoDB": mongodb_output,
+                "Cassandra": cassandra_output
+            }
+            generate_chart(chart_data, "modify", title)
         
         elif self.tab2radioButton_Delete.isChecked():
             postgres_output = self.postgres.test_time_for_delete(int(self.tab2LineEdit_NumberOfRecordsToTest.text()))
             mongodb_output = self.mongodb.test_time_for_delete(int(self.tab2LineEdit_NumberOfRecordsToTest.text()))
-            cassandra_output = "TODO"
+            cassandra_output = self.cassandra.test_time_for_delete(int(self.tab2LineEdit_NumberOfRecordsToTest.text()))
             self.tab2Label_TestOutput.setText(f"[PostgreSQL] It took {postgres_output} seconds to delete {self.tab2LineEdit_NumberOfRecordsToTest.text()} records.\n" +
             f"[MongoDB] It took {mongodb_output} seconds to delete {self.tab2LineEdit_NumberOfRecordsToTest.text()} records.\n" +
             f"[Cassandra] It took {cassandra_output} seconds to delete {self.tab2LineEdit_NumberOfRecordsToTest.text()} records.")
             self.updateNumberOfRecords(-int(self.tab2LineEdit_NumberOfRecordsToTest.text()))
-        
+
+            title = f"Deleting {self.tab2LineEdit_NumberOfRecordsToTest.text()} records"
+            chart_data = {
+                "PostgreSQL": postgres_output,
+                "MongoDB": mongodb_output,
+                "Cassandra": cassandra_output
+            }
+            generate_chart(chart_data, "delete", title)        
         
         self.tab2LineEdit_NumberOfRecordsToTest.setText("")
         
@@ -136,28 +161,36 @@ class DatabaseApp(QDialog):
         if statistic == "MAXIMUM VALUE":
             postgres_output = self.postgres.test_time_for_max(column)
             mongodb_output = self.mongodb.test_time_for_max(column)
-            cassandra_output = ["TODO"]#self.cassandra.test_time_for_max(column)
+            cassandra_output = self.cassandra.test_time_for_max(column)
         elif statistic == "MINIMUM VALUE":
             postgres_output = self.postgres.test_time_for_min(column)
             mongodb_output = self.mongodb.test_time_for_min(column)
-            cassandra_output = ["TODO"]#self.cassandra.test_time_for_min(column)
+            cassandra_output = self.cassandra.test_time_for_min(column)
         elif statistic == "MEDIAN":
             postgres_output = self.postgres.test_time_for_median(column)
             mongodb_output = self.mongodb.test_time_for_median(column)
-            cassandra_output = ["TODO"]#self.cassandra.test_time_for_median(column)
+            cassandra_output = self.cassandra.test_time_for_median(column)
         elif statistic == "COUNT ROWS":
             postgres_output = self.postgres.get_record_amount()
             mongodb_output = self.mongodb.get_record_amount()
-            cassandra_output = ["TODO"]#self.cassandra.get_record_amount(column)
+            cassandra_output = self.cassandra.get_record_amount(column)
         elif statistic == "DATA DISTRIBUTION":
             postgres_output = self.postgres.test_time_for_data_distribution(column)
             mongodb_output = self.mongodb.test_time_for_data_distribution(column)
-            cassandra_output = ["TODO"]# self.cassandra.test_time_for_data_distribution(column)
+            cassandra_output = self.cassandra.test_time_for_data_distribution(column)
         
         self.tab3Label_TestOutput.setText(f"[PostgreSQL] It took {postgres_output[0]} seconds to perform {self.tab3buttonGroup_testTypes.checkedButton().text()} on {self.tab3buttonGroup_columnNames.checkedButton().text()} column.\n" + 
             f"[MongoDB] It took {mongodb_output[0]} seconds to perform {self.tab3buttonGroup_testTypes.checkedButton().text()} on {self.tab3buttonGroup_columnNames.checkedButton().text()} column.\n"
             f"[Cassandra] It took {cassandra_output[0]} seconds to perform {self.tab3buttonGroup_testTypes.checkedButton().text()} on {self.tab3buttonGroup_columnNames.checkedButton().text()} column.\n")
 
+        title = f"{statistic} on {self.numberOfRecords} records"
+        chart_data = {
+                "PostgreSQL": postgres_output[0],
+                "MongoDB": mongodb_output[0],
+                "Cassandra": cassandra_output[0]
+            }
+        generate_chart(chart_data, "statistic", title)
+        
         self.mainTabWidget.setDisabled(False)
 
     def webScrapping(self):
@@ -181,7 +214,7 @@ class DatabaseApp(QDialog):
             test_output = self.mongodb.test_time_for_user_query()
             self.tab4Label_testOutput.setText(f"[PostgreSQL] It took {test_output[0]} seconds to perform custom query.")
         elif _database == "cassandra":
-            test_output = ["TODO"] # self.cassandra.test_time_for_user_query()
+            test_output = self.cassandra.test_time_for_user_query()
             self.tab4Label_testOutput.setText(f"[PostgreSQL] It took {test_output[0]} seconds to perform custom query.")
 
         self.mainTabWidget.setDisabled(False)
