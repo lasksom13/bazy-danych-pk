@@ -213,7 +213,7 @@ class Postgres(BaseCommands):
             # if primary key is in first table column
             primary_key = record[0]
             # tconst is name of our primary key column
-            cursor_del.execute(f"DELETE FROM {table_name} WHERE {primary_key_column} = '{primary_key}'")
+            cursor_del.execute(f"DELETE FROM {table_name} WHERE tconst = '{primary_key}'")
             # # commit after each record delete
             # conn.commit()
         conn.commit()
@@ -262,8 +262,8 @@ class Postgres(BaseCommands):
             # assume primary key is first
             primary_key_value = row[0]
             values_with_primary_key = values + [primary_key_value]
-            print(values_with_primary_key)
-            print(len)
+            # print(values_with_primary_key)
+            # print(len)
             cursor_update.execute(update_query, values_with_primary_key)
         conn.commit()
         cursor_select.close()

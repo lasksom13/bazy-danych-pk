@@ -4,7 +4,6 @@ import time
 from pymongo import MongoClient
 from time import sleep
 
-
 # Function to create and start a Docker container
 def start_container(image, container_name, port):
     subprocess.run(['docker', 'run', '-d', '--name', container_name, '-p', f'{port}:27017', image])

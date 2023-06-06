@@ -59,10 +59,10 @@ class MongoDB(BaseCommands):
         pass
 
     def test_time_for_insert(
-            self,
-            record_amount: int = 10000,
-            table_name: str = "imdbdata",
-            values: tp.Optional[tp.List] = None
+        self,
+        record_amount: int = 10000,
+        table_name: str = "imdbdata",
+        values: tp.Optional[tp.List] = None
     ) -> float:
         """
         Insert records into MongoDB collection
@@ -74,6 +74,7 @@ class MongoDB(BaseCommands):
 
         with open("." + os.path.sep + "title.basics.tsv" + os.path.sep + "data.tsv", 'r', encoding='utf-8') as file:
             next(file)  # Skip header line
+            records = []
             iterator = 0
             for line in file:
                 if iterator >= record_amount:
@@ -92,20 +93,14 @@ class MongoDB(BaseCommands):
                     "runtimeMinutes": fields[7],
                     "genres": fields[8]
                 }
-                collection.insert_one(record)
+                records.append(record)
                 iterator += 1
+
+            collection.insert_many(records)
 
         client.close()
         end_time = time.time()
         return end_time - start_time
-        pass
-
-    def test_time_for_modify(
-            self,
-            record_amount: int = 10000,
-            table_name: str = "imdbdata"
-    ) -> float:
-        pass
 
     def test_time_for_delete(
             self,
