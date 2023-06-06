@@ -6,6 +6,8 @@ from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateTimeEdit,
         QVBoxLayout, QWidget, QButtonGroup)
 import random
 
+from web_scrapping import WebScrapper
+
 def testFunction(value):
     print("WORKS!" + str(value))
     return value
@@ -84,6 +86,8 @@ class DatabaseApp(QDialog):
         self.updateNumberOfRecords()
 
         self.mainTabWidget.setDisabled(False)
+        
+        self.tab1LineEdit_NumberOfRecordsToAdd.setText("")
 
     def deleteDatabase(self):
         # delete db function
@@ -93,16 +97,25 @@ class DatabaseApp(QDialog):
 
     def simpleTest(self):
         if self.tab2radioButton_Insert.isChecked():
-            self.tab2Label_TestOutput.setText(f"It took {randomNumber()} seconds to insert {self.tab1LineEdit_NumberOfRecordsToAdd.text()} records.")
+            self.tab2Label_TestOutput.setText(f"It took {randomNumber()} seconds to insert {self.tab2LineEdit_NumberOfRecordsToTest.text()} records.")
         elif self.tab2radioButton_Modify.isChecked():
-            self.tab2Label_TestOutput.setText(f"It took {randomNumber()} seconds to modify {self.tab1LineEdit_NumberOfRecordsToAdd.text()} records.")
+            self.tab2Label_TestOutput.setText(f"It took {randomNumber()} seconds to modify {self.tab2LineEdit_NumberOfRecordsToTest.text()} records.")
         elif self.tab2radioButton_Delete.isChecked():
-            self.tab2Label_TestOutput.setText(f"It took {randomNumber()} seconds to insert {self.tab1LineEdit_NumberOfRecordsToAdd.text()} records.")
+            self.tab2Label_TestOutput.setText(f"It took {randomNumber()} seconds to insert {self.tab2LineEdit_NumberOfRecordsToTest.text()} records.")
+
+        self.tab2LineEdit_NumberOfRecordsToTest.setText("")
         
         self.updateNumberOfRecords()
 
     def statisticsTest(self):
         self.tab3Label_TestOutput.setText(f"It took {randomNumber()} seconds to perform {self.tab3buttonGroup_testTypes.checkedButton().text()} on {self.tab3buttonGroup_columnNames.checkedButton().text()} column.")
+
+
+    def webScrapping(self):
+        web_scrapper = WebScrapper(self.tab5LineEdit_linkToIMDB.text())
+        self.tab5Label_webScrapperOutput.setText(f"Added to databases: {web_scrapper.__dict__()}")
+
+        self.tab5LineEdit_linkToIMDB.setText("")
 
 
 
@@ -116,6 +129,10 @@ class DatabaseApp(QDialog):
         self.createTab2()
 
         self.createTab3()
+
+        self.createTab4()
+
+        self.createTab5()
         # textEdit = QTextEdit()
 
         # textEdit.setPlainText("Twinkle, twinkle, little star,\n"
@@ -133,6 +150,8 @@ class DatabaseApp(QDialog):
         self.mainTabWidget.addTab(self.tab1, "DB Creation")
         self.mainTabWidget.addTab(self.tab2, "Basic Tests")
         self.mainTabWidget.addTab(self.tab3, "Statistics")
+        self.mainTabWidget.addTab(self.tab4, "Custom Query")
+        self.mainTabWidget.addTab(self.tab5, "Web Scrapping")
 
 
     def createTab1(self):
@@ -287,6 +306,46 @@ class DatabaseApp(QDialog):
         self.tab3Layout.addWidget(self.tab3Label_TestOutput, 3, 1, 1, 2)
 
         self.tab3.setLayout(self.tab3Layout)
+
+    def createTab4(self):
+        self.tab4 = QWidget()
+        self.tab4Layout = QVBoxLayout()
+        # self.tab4Layout
+
+        self.tab4LineEdit_customQuery = QLineEdit()
+        self.tab4LineEdit_customQuery.setPlaceholderText("Custom Query")
+
+        self.tab4Button_PostgreSQL = QPushButton("Test PostgreSQL")
+        self.tab4Button_MongoDB = QPushButton("Test MongoDB")
+        self.tab4Button_InfluxDB = QPushButton("Test InfluxDB")
+
+        self.tab4Layout.addWidget(self.tab4LineEdit_customQuery)
+        self.tab4Layout.addStretch(1)
+
+        self.tab4.setLayout(self.tab4Layout)
+
+    def createTab5(self):
+        self.tab5 = QWidget()
+        self.tab5Layout = QVBoxLayout()
+
+        self.tab5LineEdit_linkToIMDB = QLineEdit()
+        self.tab5LineEdit_linkToIMDB.setPlaceholderText("Link to a movie/show on IMDB")
+
+        self.tab5Button_addToDatabase = QPushButton("Add to Databases")
+        self.tab5Button_addToDatabase.clicked.connect(self.webScrapping)
+
+        self.tab5Label_webScrapperOutput = QLabel()
+        self.tab5Label_webScrapperOutput.setWordWrap(True)
+
+        self.tab5Layout.addWidget(self.tab5LineEdit_linkToIMDB)
+        self.tab5Layout.addWidget(self.tab5Button_addToDatabase)
+        self.tab5Layout.addWidget(self.tab5Label_webScrapperOutput)
+        self.tab5Layout.addStretch(1)
+
+        self.tab5.setLayout(self.tab5Layout)
+
+
+
 
 
     def changeStyle(self, styleName):
