@@ -165,12 +165,14 @@ class MongoDB(BaseCommands):
             self,
             table_name: str = "imdbdata",
     ) -> int:
+        start = time.time()
         client = self.connect()
         db = client['mydatabase']
         collection = db[table_name]
         count = collection.count_documents({})
         client.close()
-        return count
+        end = time.time()
+        return end - start, count
 
     def list_tables(self) -> tp.List[str]:
         """

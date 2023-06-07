@@ -26,7 +26,7 @@ class DatabaseApp(QDialog):
     def __init__(self, parent=None):
         super(DatabaseApp, self).__init__(parent)
 
-        self.numberOfRecords = 1000000
+        self.numberOfRecords = 0
         self.postgres = Postgres()
         self.mongodb = MongoDB()
         self.cassandra = CassandraDB()
@@ -158,6 +158,8 @@ class DatabaseApp(QDialog):
         column = self.tab3buttonGroup_columnNames.checkedButton().text().split()[0]
         statistic = self.tab3buttonGroup_testTypes.checkedButton().text()
 
+        cassandra_output = [0]
+
         if statistic == "MAXIMUM VALUE":
             postgres_output = self.postgres.test_time_for_max(column)
             mongodb_output = self.mongodb.test_time_for_max(column)
@@ -165,19 +167,19 @@ class DatabaseApp(QDialog):
         elif statistic == "MINIMUM VALUE":
             postgres_output = self.postgres.test_time_for_min(column)
             mongodb_output = self.mongodb.test_time_for_min(column)
-            cassandra_output = self.cassandra.test_time_for_min(column)
+            # cassandra_output = self.cassandra.test_time_for_min(column)
         elif statistic == "MEDIAN":
             postgres_output = self.postgres.test_time_for_median(column)
             mongodb_output = self.mongodb.test_time_for_median(column)
-            cassandra_output = self.cassandra.test_time_for_median(column)
+            # cassandra_output = self.cassandra.test_time_for_median(column)
         elif statistic == "COUNT ROWS":
             postgres_output = self.postgres.get_record_amount()
             mongodb_output = self.mongodb.get_record_amount()
-            cassandra_output = self.cassandra.get_record_amount(column)
+            # cassandra_output = self.cassandra.get_record_amount(column)
         elif statistic == "DATA DISTRIBUTION":
             postgres_output = self.postgres.test_time_for_data_distribution(column)
             mongodb_output = self.mongodb.test_time_for_data_distribution(column)
-            cassandra_output = self.cassandra.test_time_for_data_distribution(column)
+            # cassandra_output = self.cassandra.test_time_for_data_distribution(column)
         
         self.tab3Label_TestOutput.setText(f"[PostgreSQL] It took {postgres_output[0]} seconds to perform {self.tab3buttonGroup_testTypes.checkedButton().text()} on {self.tab3buttonGroup_columnNames.checkedButton().text()} column.\n" + 
             f"[MongoDB] It took {mongodb_output[0]} seconds to perform {self.tab3buttonGroup_testTypes.checkedButton().text()} on {self.tab3buttonGroup_columnNames.checkedButton().text()} column.\n"

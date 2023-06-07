@@ -118,13 +118,15 @@ class Postgres(BaseCommands):
         """
         :return: amount of records inside table
         """
+        start = time.time()
         conn: connection = self.connect()
         cursor = conn.cursor()
         cursor.execute(fr"SELECT COUNT(*) FROM {table_name} ")
         count = cursor.fetchone()[0]
         cursor.close()
         conn.close()
-        return count
+        end = time.time()
+        return end - start, count
 
     def list_tables(
             self
