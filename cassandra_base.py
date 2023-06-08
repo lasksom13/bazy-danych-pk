@@ -249,7 +249,7 @@ class CassandraDB():
         session = self.connect()
         start_time = time.time()
         query = f"SELECT MIN({column_name}) FROM {table_name}"
-        result = session.execute(query, control_connection_timeout = 100000)
+        result = session.execute(query)
         min_value = result.one()[0]
         print(min_value)
  
